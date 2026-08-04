@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import { extractFixSuggestion } from './fixSuggestionSkill';
 import type { SurvivedMutant } from '../auditor/run';
 
 export interface VerifiedFinding extends SurvivedMutant {
@@ -48,12 +49,12 @@ export async function runVerifier(mutants: SurvivedMutant[]): Promise<VerifiedFi
     const prompt = buildPrompt(mutant);
     const raw = await callGemini(prompt);
 
-    const [explanationPart, fixPart] = raw.split(/FIX:/i);
+   const { explanation, suggestedFix } = extractFixSuggestion(raw);
 
     results.push({
       ...mutant,
-      explanation: explanationPart?.trim() ?? raw.trim(),
-      suggestedFix: fixPart?.trim() ?? '(no fix suggested)',
+      explanation,
+      suggestedFix,
     });
   }
 
