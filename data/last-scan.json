@@ -1,0 +1,104 @@
+{
+  "status": "success",
+  "timestamp": "2026-08-05T17:15:49.403Z",
+  "mutationScore": 0,
+  "survivedCount": 5,
+  "totalMutants": 5,
+  "findings": [
+    {
+      "id": "4",
+      "mutatorName": "EqualityOperator",
+      "fileName": "demo-repo/isPositive.ts",
+      "location": {
+        "end": {
+          "column": 15,
+          "line": 2
+        },
+        "start": {
+          "column": 10,
+          "line": 2
+        }
+      },
+      "originalCode": "return n > 0;",
+      "mutatedCode": "n <= 0",
+      "explanation": "The existing test suite likely executes this code path for code coverage without asserting its actual boolean return value. Without tests explicitly verifying that a positive number returns `true` (or a non-positive number returns `false`), completely inverting the condition goes unnoticed.",
+      "suggestedFix": "`assert(isPositive(5) === true);`"
+    },
+    {
+      "id": "3",
+      "mutatorName": "EqualityOperator",
+      "fileName": "demo-repo/isPositive.ts",
+      "location": {
+        "end": {
+          "column": 15,
+          "line": 2
+        },
+        "start": {
+          "column": 10,
+          "line": 2
+        }
+      },
+      "originalCode": "return n > 0;",
+      "mutatedCode": "n >= 0",
+      "explanation": "The test suite likely missed this bug because it lacked a test case targeting the exact boundary value of zero. The existing tests probably only checked strictly positive and strictly negative numbers, which produce the exact same results in both versions. Without testing `n = 0`, the incorrect `true` output caused by the mutated `>=` operator was never triggered.",
+      "suggestedFix": "assertFalse(isPositive(0));"
+    },
+    {
+      "id": "2",
+      "mutatorName": "ConditionalExpression",
+      "fileName": "demo-repo/isPositive.ts",
+      "location": {
+        "end": {
+          "column": 15,
+          "line": 2
+        },
+        "start": {
+          "column": 10,
+          "line": 2
+        }
+      },
+      "originalCode": "return n > 0;",
+      "mutatedCode": "false",
+      "explanation": "The test suite likely only tests zero or negative numbers, which legitimately expect a `false` result. Because no test covers a positive input, the suite never asserts that the function should return `true`. Consequently, replacing the expression with constant `false` satisfies all existing test cases.",
+      "suggestedFix": "`assert(isPositive(1) === true);`"
+    },
+    {
+      "id": "1",
+      "mutatorName": "ConditionalExpression",
+      "fileName": "demo-repo/isPositive.ts",
+      "location": {
+        "end": {
+          "column": 15,
+          "line": 2
+        },
+        "start": {
+          "column": 10,
+          "line": 2
+        }
+      },
+      "originalCode": "return n > 0;",
+      "mutatedCode": "true",
+      "explanation": "The existing test suite likely only tested positive numbers, where the original function legitimately returns `true`. Because it lacked test cases using zero or negative values, it never verified the behavior when the function should return `false`. Consequently, a mutation that forces the output to always be `true` went unnoticed.",
+      "suggestedFix": "assertEquals(false, isPositive(-1));"
+    },
+    {
+      "id": "0",
+      "mutatorName": "BlockStatement",
+      "fileName": "demo-repo/isPositive.ts",
+      "location": {
+        "end": {
+          "column": 2,
+          "line": 3
+        },
+        "start": {
+          "column": 48,
+          "line": 1
+        }
+      },
+      "originalCode": "export function isPositive(n: number): boolean {\r\n  return n > 0;\r\n}",
+      "mutatedCode": "{}",
+      "explanation": "The test suite likely missed this bug because it lacks assertions that strictly check for a `true` return value on positive numbers. Replacing the function body with `{}` causes `isPositive` to return `undefined`, which satisfies loose falsy checks if the suite only tested non-positive inputs. Explicitly asserting that a positive number returns `true` forces the function to execute its intended logic.",
+      "suggestedFix": "expect(isPositive(1)).toBe(true);"
+    }
+  ]
+}
