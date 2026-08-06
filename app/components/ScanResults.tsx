@@ -95,7 +95,7 @@ export default function ScanResults() {
           <div className="mb-2">
             {elapsedSeconds < 25
               ? 'Running Stryker mutation tests…'
-              : 'Generating explanations with Gemini…'}
+              : 'Generating explanations…'}
           </div>
           <div className="text-xs text-gray-600 font-mono">{elapsedSeconds}s elapsed</div>
           <div className="mt-3 h-1 w-48 mx-auto bg-gray-800 rounded overflow-hidden">
@@ -109,7 +109,7 @@ export default function ScanResults() {
 
       {view.kind === 'error' && (
         <div className="mb-4 bg-red-950 border border-red-800 rounded-lg px-4 py-3 text-red-300 text-sm">
-          <strong>Scan failed</strong> ({view.stage === 'auditor' ? 'Stryker run' : view.stage === 'verifier' ? 'Gemini explanation' : 'unknown stage'}): {view.message}
+          <strong>Scan failed</strong> ({view.stage === 'auditor' ? 'Stryker run' : view.stage === 'verifier' ? 'Explanation generation' : 'unknown stage'}): {view.message}
           {view.previous && <span className="block mt-1 text-red-400">Showing last cached result below.</span>}
         </div>
       )}
@@ -147,7 +147,7 @@ function ScanResultView({ result, isLive }: { result: ScanResult; isLive: boolea
 
       <div className="space-y-4">
         {result.findings.map((f) => (
-          <div key={f.id} className="bg-gray-900 rounded-lg px-4 py-4">
+          <div key={f.id} data-testid="finding-card" className="bg-gray-900 rounded-lg px-4 py-4">
             <div className="text-sm text-gray-400 mb-2">
               {f.fileName} · line {f.location.start.line} · {f.mutatorName}
             </div>
