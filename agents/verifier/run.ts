@@ -48,10 +48,19 @@ In 2-3 short sentences, explain in plain language why the existing test suite li
 export async function runVerifier(mutants: SurvivedMutant[]): Promise<VerifiedFinding[]> {
   const results = await Promise.all(
     mutants.map(async (mutant) => {
-      const prompt = buildPrompt(mutant);
-      const raw = await callOpenRouter(prompt);
-      const { explanation, suggestedFix } = extractFixSuggestion(raw);
-      return { ...mutant, explanation, suggestedFix };
+      try {
+        const prompt = buildPrompt(mutant);
+        const raw = await callOpenRouter(prompt);
+        const { explanation, suggestedFix } = extractFixSuggestion(raw);
+        return { ...mutant, explanation, suggestedFix };
+      } catch (err) {
+        console.error(`Verifier failed for mutant in ${mutant.location?.file ?? "unknown file"}:`, err);
+        return {
+          ...mutant,
+          explanation: "Explanation unavailable — the verifier call failed for this mutant.",
+          suggestedFix: "N/A",
+        };
+      }
     })
   );
 
