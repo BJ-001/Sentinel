@@ -54,7 +54,7 @@ export async function runVerifier(mutants: SurvivedMutant[]): Promise<VerifiedFi
         const { explanation, suggestedFix } = extractFixSuggestion(raw);
         return { ...mutant, explanation, suggestedFix };
       } catch (err) {
-        console.error(`Verifier failed for mutant in ${mutant.location?.file ?? "unknown file"}:`, err);
+        console.error(`Verifier failed for mutant in ${mutant.fileName ?? "unknown file"}:`, err);
         return {
           ...mutant,
           explanation: "Explanation unavailable — the verifier call failed for this mutant.",
