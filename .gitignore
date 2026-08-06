@@ -43,3 +43,5 @@ next-env.d.ts
 # stryker temp files
 .stryker-tmp
 reports/
+
+data/last-scan.json
