@@ -1,0 +1,104 @@
+{
+  "status": "success",
+  "timestamp": "2026-08-05T17:51:16.417Z",
+  "mutationScore": 0,
+  "survivedCount": 5,
+  "totalMutants": 5,
+  "findings": [
+    {
+      "id": "3",
+      "mutatorName": "EqualityOperator",
+      "fileName": "demo-repo/isPositive.ts",
+      "location": {
+        "end": {
+          "column": 15,
+          "line": 2
+        },
+        "start": {
+          "column": 10,
+          "line": 2
+        }
+      },
+      "originalCode": "return n > 0;",
+      "mutatedCode": "n >= 0",
+      "explanation": "The test suite likely only checks positive and negative values, missing the boundary case where `n = 0`. Both original and mutated code behave identically for all non-zero inputs, so tests passing for those values won't reveal the difference.",
+      "suggestedFix": "assertFalse(isPositive(0))"
+    },
+    {
+      "id": "4",
+      "mutatorName": "EqualityOperator",
+      "fileName": "demo-repo/isPositive.ts",
+      "location": {
+        "end": {
+          "column": 15,
+          "line": 2
+        },
+        "start": {
+          "column": 10,
+          "line": 2
+        }
+      },
+      "originalCode": "return n > 0;",
+      "mutatedCode": "n <= 0",
+      "explanation": "The test suite likely lacks test cases for the boundary value `n = 0` and negative numbers, only verifying behavior for positive inputs (or omitting return-value assertions entirely). Since the mutant inverts the logic for all non-positive values, it survives because no test asserts `false` when `n <= 0`.",
+      "suggestedFix": "`assertFalse(isPositive(0));`"
+    },
+    {
+      "id": "2",
+      "mutatorName": "ConditionalExpression",
+      "fileName": "demo-repo/isPositive.ts",
+      "location": {
+        "end": {
+          "column": 15,
+          "line": 2
+        },
+        "start": {
+          "column": 10,
+          "line": 2
+        }
+      },
+      "originalCode": "return n > 0;",
+      "mutatedCode": "false",
+      "explanation": "The test suite likely only covers cases where `n <= 0`, where both the original and mutated code return `false`. It lacks a test case with a positive `n`, where the original returns `true` but the mutation incorrectly returns `false`.",
+      "suggestedFix": "assertTrue(isPositive(1));"
+    },
+    {
+      "id": "1",
+      "mutatorName": "ConditionalExpression",
+      "fileName": "demo-repo/isPositive.ts",
+      "location": {
+        "end": {
+          "column": 15,
+          "line": 2
+        },
+        "start": {
+          "column": 10,
+          "line": 2
+        }
+      },
+      "originalCode": "return n > 0;",
+      "mutatedCode": "true",
+      "explanation": "The test suite likely only covered cases where `n` is positive, so it never verified that the function returns `false` for zero or negative inputs. Since the mutant `true` behaves identically to the original code for all positive values, the missing boundary tests allowed the bug to survive undetected.",
+      "suggestedFix": "assertFalse(isPositive(0));"
+    },
+    {
+      "id": "0",
+      "mutatorName": "BlockStatement",
+      "fileName": "demo-repo/isPositive.ts",
+      "location": {
+        "end": {
+          "column": 2,
+          "line": 3
+        },
+        "start": {
+          "column": 48,
+          "line": 1
+        }
+      },
+      "originalCode": "export function isPositive(n: number): boolean {\r\n  return n > 0;\r\n}",
+      "mutatedCode": "{}",
+      "explanation": "The mutated function returns `undefined` (falsy) for all inputs. Tests for zero or negative numbers would still pass because they expect `false` (also falsy), but any test with a positive number expecting `true` would fail. The suite likely lacks a test case with a positive input.",
+      "suggestedFix": "`expect(isPositive(1)).toBe(true);`"
+    }
+  ]
+}

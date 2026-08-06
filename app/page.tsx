@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import ScanResults from './components/ScanResults';
 
 interface GateStatus {
   checks: Record<string, boolean>;
@@ -64,6 +65,8 @@ export default function Dashboard() {
             </div>
           </div>
         )}
+
+        <ScanResults />
       </div>
     </main>
   );

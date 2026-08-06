@@ -7,27 +7,30 @@ export interface VerifiedFinding extends SurvivedMutant {
   suggestedFix: string;
 }
 
-async function callGemini(prompt: string): Promise<string> {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) throw new Error('GEMINI_API_KEY not found in .env');
+async function callOpenRouter(prompt: string): Promise<string> {
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) throw new Error('OPENROUTER_API_KEY not found in .env');
 
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-      }),
-    }
-  );
+  const model = process.env.OPENROUTER_MODEL ?? 'openai/gpt-oss-20b:free';
+
+  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model,
+      messages: [{ role: 'user', content: prompt }],
+    }),
+  });
 
   if (!response.ok) {
-    throw new Error(`Gemini API error: ${response.status} ${await response.text()}`);
+    throw new Error(`OpenRouter API error: ${response.status} ${await response.text()}`);
   }
 
   const data = await response.json();
-  return data.candidates?.[0]?.content?.parts?.[0]?.text ?? '(no response)';
+  return data.choices?.[0]?.message?.content ?? '(no response)';
 }
 
 function buildPrompt(mutant: SurvivedMutant): string {
@@ -43,20 +46,14 @@ In 2-3 short sentences, explain in plain language why the existing test suite li
 }
 
 export async function runVerifier(mutants: SurvivedMutant[]): Promise<VerifiedFinding[]> {
-  const results: VerifiedFinding[] = [];
-
-  for (const mutant of mutants) {
-    const prompt = buildPrompt(mutant);
-    const raw = await callGemini(prompt);
-
-   const { explanation, suggestedFix } = extractFixSuggestion(raw);
-
-    results.push({
-      ...mutant,
-      explanation,
-      suggestedFix,
-    });
-  }
+  const results = await Promise.all(
+    mutants.map(async (mutant) => {
+      const prompt = buildPrompt(mutant);
+      const raw = await callOpenRouter(prompt);
+      const { explanation, suggestedFix } = extractFixSuggestion(raw);
+      return { ...mutant, explanation, suggestedFix };
+    })
+  );
 
   return results;
 }
