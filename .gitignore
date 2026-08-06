@@ -43,3 +43,11 @@ next-env.d.ts
 # stryker temp files
 .stryker-tmp
 reports/
+
+# Playwright
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
