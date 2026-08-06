@@ -1,7 +1,7 @@
 'use client';
-
-import { useEffect, useState } from 'react';
 import ScanResults from './components/ScanResults';
+import DependencyResults from './components/DependencyResults';
+import { useEffect, useState } from 'react';
 
 interface GateStatus {
   checks: Record<string, boolean>;
@@ -67,6 +67,7 @@ export default function Dashboard() {
         )}
 
         <ScanResults />
+        <DependencyResults />
       </div>
     </main>
   );
