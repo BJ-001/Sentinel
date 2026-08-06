@@ -13,6 +13,19 @@ type ViewState =
 
 export default function ScanResults() {
   const [view, setView] = useState<ViewState>({ kind: 'loading-cache' });
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+
+  useEffect(() => {
+    if (view.kind !== 'scanning') {
+      setElapsedSeconds(0);
+      return;
+    }
+    const start = Date.now();
+    const interval = setInterval(() => {
+      setElapsedSeconds(Math.floor((Date.now() - start) / 1000));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [view.kind]);
 
   useEffect(() => {
     fetch('/api/scan-results')
@@ -79,7 +92,18 @@ export default function ScanResults() {
 
       {view.kind === 'scanning' && (
         <div className="bg-gray-900 rounded-lg px-4 py-6 text-center text-gray-400">
-          Running Stryker mutation testing and generating explanations — this can take a minute...
+          <div className="mb-2">
+            {elapsedSeconds < 25
+              ? 'Running Stryker mutation tests…'
+              : 'Generating explanations with Gemini…'}
+          </div>
+          <div className="text-xs text-gray-600 font-mono">{elapsedSeconds}s elapsed</div>
+          <div className="mt-3 h-1 w-48 mx-auto bg-gray-800 rounded overflow-hidden">
+            <div
+              className="h-full bg-blue-600 transition-all duration-1000 ease-linear"
+              style={{ width: `${Math.min(95, (elapsedSeconds / 75) * 100)}%` }}
+            />
+          </div>
         </div>
       )}
 
