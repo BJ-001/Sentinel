@@ -1,37 +1,94 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Sentinel
 
-## Getting Started
+Sentinel catches tests that exist but don't actually verify behavior. A
+test suite can show 100% line coverage while catching zero real bugs —
+"fake coverage" that's hard to spot by reading code or coverage reports
+alone.
 
-First, run the development server:
+Sentinel uses mutation testing to detect this: it deliberately introduces
+small bugs into code (via [Stryker](https://stryker-mutator.io/)) and
+checks whether the existing tests catch them. Tests that miss the bug are
+toothless, regardless of what coverage tools report. For each bug a test
+suite misses, Sentinel generates a plain-language explanation of why the
+test suite likely missed it, plus a concrete suggested fix.
+
+## What's in this repo
+
+- A gate-readiness dashboard showing whether this project meets its own
+  submission requirements (docs present, custom agents/skills in place,
+  CI/CD configured) — checked live, not hardcoded.
+- A "Run Live Scan" flow: triggers a real mutation-testing run against
+  `demo-repo/`, then generates an explanation + suggested fix for every
+  survived mutant found.
+- A dependency checker that verifies every package in `package.json`
+  actually exists on the npm registry, to catch AI-hallucinated package
+  names before they break a build.
+- A full Playwright end-to-end test suite covering all of the above.
+
+## Getting started
+
+### Requirements
+
+- Node.js 20+
+- An [OpenRouter](https://openrouter.ai/) API key (used to generate
+  plain-language explanations for survived mutants)
+
+### Setup
+
+```bash
+npm install
+```
+
+Create a `.env` file in the project root:
+
+OPENROUTER_API_KEY=your-key-here
+
+
+### Run the dashboard
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000). You'll see the gate
+readiness checklist, a "Run Live Scan" button, and a dependency check
+section.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Run the test suite
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The Playwright suite exercises the full app end to end, including real
+mutation-testing scans — expect it to take a few minutes.
 
-## Learn More
+```bash
+npx playwright test
+```
 
-To learn more about Next.js, take a look at the following resources:
+HTML report:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npx playwright show-report
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Lint / build
 
-## Deploy on Vercel
+```bash
+npm run lint
+npm run build
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Project structure
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `agents/auditor/` — runs Stryker, collects survived mutants
+- `agents/verifier/` — generates explanations + suggested fixes via
+  OpenRouter for each survived mutant
+- `app/` — Next.js dashboard (App Router), API routes, and UI components
+- `lib/` — shared types and the dependency-hallucination checker
+- `demo-repo/` — the small target codebase Sentinel scans for the demo
+- `e2e/` — Playwright test suite
+- `docs/architecture.md` — architecture overview
 
+## Out of scope
+
+This is a hackathon submission. It currently targets a single demo repo
+(`demo-repo/**/*.ts`), TypeScript/JavaScript only, no auth, no hosted
+deployment — see `docs/architecture.md` and `prd.md` for full details.
