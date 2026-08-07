@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "prepare": "husky"
+    "prepare": "husky",
+    "test": "jest",
+    "pretest": "node -e \"try{require('fs').rmSync('.stryker-tmp',{recursive:true,force:true})}catch(e){}\""
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx}": [
