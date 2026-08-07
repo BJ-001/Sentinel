@@ -1,5 +1,9 @@
 # Sentinel — Product Requirements Document
 
+## Track
+
+Track B: Developer Productivity Tools
+
 ## Problem
 
 Agent-written code often ships with tests that exist but don't actually verify
