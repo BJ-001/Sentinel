@@ -45,11 +45,16 @@ concrete suggested test assertion that would catch it.
 1. Receives `SurvivedMutant[]` from the Auditor
 2. For each mutant, builds a targeted prompt containing the original code, the mutated
    (buggy) code, and instructions to explain the gap and suggest a fix
-3. Calls the Gemini API (`gemini-3.6-flash`, via Google AI Studio's free tier) with
-   this prompt
+3. Calls the OpenRouter API (`openai/gpt-oss-20b:free` by default, configurable via
+   `OPENROUTER_MODEL`) with this prompt
 4. Passes the raw LLM response to the Fix-Suggestion Skill (see below) to extract a
    structured explanation + suggested fix
-5. Returns an enriched list (`VerifiedFinding[]`) — the original mutant data plus
+5. Runs all mutants concurrently (`Promise.all`), with each mutant's call isolated in
+   its own try/catch — a failure on one mutant's call falls back to a graceful
+   "explanation unavailable" result rather than dropping that mutant or failing the
+   whole batch (verified by a dedicated Jest unit test in `agents/verifier/__tests__/run.test.ts`,
+   since this failure path happens server-side and isn't reachable by Playwright)
+6. Returns an enriched list (`VerifiedFinding[]`) — the original mutant data plus
    `explanation` and `suggestedFix` fields
 
 **Why this is a genuine agent, not just an API call wrapper:** it performs a real
@@ -78,8 +83,8 @@ structured object with separate `explanation` and `suggestedFix` fields.
 **Why this is a skill, not just a helper function tied to one agent:** it's intentionally
 decoupled from the Verifier agent's specific prompt or use case — its only job is turning
 free-text LLM output following a known convention into structured data. Any future agent
-in this repo that needs the same "explanation + fix" pattern (for example, the planned
-hallucinated-dependency checker, if it adopts the same explanation format) can call this
+in this repo that needs the same "explanation + fix" pattern (for example, the
+dependency-hallucination checker, if it adopts the same explanation format) can call this
 skill directly rather than duplicating parsing logic.
 
 **Input:** raw string (an LLM's text response)
@@ -93,20 +98,17 @@ Sentinel grows.
 ---
 
 ## How Agents and the Skill Work Together
-
-```
 Target Repo
-   ↓
+↓
 Auditor Agent (runs Stryker, filters for survived mutants)
-   ↓ SurvivedMutant[]
-Verifier Agent (calls Gemini per mutant)
-   ↓ raw LLM text
+↓ SurvivedMutant[]
+Verifier Agent (calls OpenRouter per mutant, isolates per-mutant failures)
+↓ raw LLM text
 Fix-Suggestion Skill (parses raw text into structured data)
-   ↓ { explanation, suggestedFix }
+↓ { explanation, suggestedFix }
 Verifier Agent (attaches structured data to each finding)
-   ↓ VerifiedFinding[]
+↓ VerifiedFinding[]
 [Dashboard — displays results to the user]
-```
 
 This pipeline is intentionally modular: the Auditor doesn't know about LLMs, the
 Verifier doesn't know about Stryker's report format, and the skill doesn't know about
