@@ -92,3 +92,15 @@ npm run build
 This is a hackathon submission. It currently targets a single demo repo
 (`demo-repo/**/*.ts`), TypeScript/JavaScript only, no auth, no hosted
 deployment — see `docs/architecture.md` and `prd.md` for full details.
+
+## Future Work
+
+Sentinel currently demonstrates its detection capability against a bundled example codebase (`demo-repo/`) rather than accepting arbitrary user-submitted repositories. This was a deliberate scope decision: running mutation testing against untrusted, user-supplied code safely requires sandboxed execution (isolated dependency installation, resource/time limits, and protection against arbitrary code execution).
+
+A natural next step would be to let users point Sentinel at their own repository (via upload or a Git URL) and have it run the same audit → verify → explain pipeline against their actual test suite. This would require:
+- Sandboxed execution environment (e.g., ephemeral containers) for running untrusted `npm install` and test suites safely
+- Dynamic Stryker configuration generation per scan, rather than a static `mutate` glob
+- Handling for a much wider range of failure modes (missing dependencies, unsupported test runners, malformed repos, timeouts)
+
+For now, the fixed demo repo lets Sentinel clearly demonstrate the core value proposition — catching tests that pass but don't actually verify behavior — in a controlled, reliable way.
+
