@@ -49,6 +49,7 @@ export default function DependencyResults() {
           {data.results.map((dep) => (
             <div
               key={dep.name}
+              data-testid="dependency-row"
               className={`flex items-center justify-between rounded-lg px-4 py-3 ${
                 dep.exists ? 'bg-gray-900' : 'bg-red-950 border border-red-800'
               }`}
