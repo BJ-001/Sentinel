@@ -1,6 +1,7 @@
 import { execSync } from 'child_process';
 import { readFileSync } from 'fs';
 import path from 'path';
+import type { StrykerReport } from '@/lib/types/scan';
 
 export interface SurvivedMutant {
   id: string;
@@ -18,11 +19,11 @@ export function runAuditor(): SurvivedMutant[] {
   execSync('npx stryker run', { stdio: 'inherit' });
 
   const reportPath = path.join(process.cwd(), 'reports', 'mutation', 'mutation.json');
-  const report = JSON.parse(readFileSync(reportPath, 'utf-8'));
+  const report: StrykerReport = JSON.parse(readFileSync(reportPath, 'utf-8'));
 
   const survived: SurvivedMutant[] = [];
 
-  for (const [fileName, fileResult] of Object.entries<any>(report.files)) {
+  for (const [fileName, fileResult] of Object.entries(report.files)) {
     const sourceLines = fileResult.source.split('\n');
 
     for (const mutant of fileResult.mutants) {

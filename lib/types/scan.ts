@@ -21,3 +21,23 @@ export interface ScanResult {
   findings: VerifiedFinding[];
   error?: string;
 }
+
+export interface StrykerMutant {
+  id: string;
+  mutatorName: string;
+  status: string;
+  location: {
+    start: { line: number; column: number };
+    end: { line: number; column: number };
+  };
+  replacement?: string;
+}
+
+export interface StrykerFileResult {
+  source: string;
+  mutants: StrykerMutant[];
+}
+
+export interface StrykerReport {
+  files: Record<string, StrykerFileResult>;
+}
