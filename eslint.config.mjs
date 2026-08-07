@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Stryker's temporary mutation-testing sandbox - generated, not real source
+    ".stryker-tmp/**",
   ]),
 ]);
 

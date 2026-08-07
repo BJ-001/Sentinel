@@ -3,7 +3,7 @@ import { writeFileSync, readFileSync, existsSync, mkdirSync } from 'fs';
 import path from 'path';
 import { runAuditor } from '@/agents/auditor/run';
 import { runVerifier } from '@/agents/verifier/run';
-import type { ScanResult } from '@/lib/types/scan';
+import type { ScanResult, StrykerReport } from '@/lib/types/scan';
 
 const DATA_DIR = path.join(process.cwd(), 'data');
 const CACHE_PATH = path.join(DATA_DIR, 'last-scan.json');
@@ -11,9 +11,9 @@ const REPORT_PATH = path.join(process.cwd(), 'reports', 'mutation', 'mutation.js
 
 function getTotalMutantCount(): number {
   try {
-    const report = JSON.parse(readFileSync(REPORT_PATH, 'utf-8'));
+    const report: StrykerReport = JSON.parse(readFileSync(REPORT_PATH, 'utf-8'));
     let total = 0;
-    for (const fileResult of Object.values<any>(report.files)) {
+    for (const fileResult of Object.values(report.files)) {
       total += fileResult.mutants.length;
     }
     return total;

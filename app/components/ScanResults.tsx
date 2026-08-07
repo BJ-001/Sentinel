@@ -16,10 +16,7 @@ export default function ScanResults() {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
   useEffect(() => {
-    if (view.kind !== 'scanning') {
-      setElapsedSeconds(0);
-      return;
-    }
+    if (view.kind !== 'scanning') return;
     const start = Date.now();
     const interval = setInterval(() => {
       setElapsedSeconds(Math.floor((Date.now() - start) / 1000));
@@ -44,7 +41,8 @@ export default function ScanResults() {
         : view.kind === 'error' || view.kind === 'scanning'
         ? view.previous
         : null;
-
+    
+    setElapsedSeconds(0);
     setView({ kind: 'scanning', previous });
 
     try {

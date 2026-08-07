@@ -23,7 +23,7 @@ test.describe('US-1: Gate readiness status', () => {
     expect(typeof body.checks.ciWorkflow).toBe('boolean');
 
     await page.goto('/');
-    for (const [key, passing] of Object.entries(body.checks) as [string, boolean][]) {
+    for (const [, passing] of Object.entries(body.checks) as [string, boolean][]) {
       const expectedText = passing ? '✅ Pass' : '❌ Missing';
       await expect(page.getByText(expectedText).first()).toBeVisible();
     }
