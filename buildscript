@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Sentinel — Build Script
+#
+# Sentinel is not deployed (see AGENTS.md — mutation testing via execSync needs a
+# persistent filesystem and long-running process, which rules out serverless hosting).
+# This script builds and verifies the app locally so organizers can confirm it works
+# without needing a live deployment.
+#
+# Usage: ./buildscript
+
+set -e
+
+echo "==> Installing dependencies..."
+npm ci
+
+echo "==> Linting..."
+npm run lint
+
+echo "==> Building..."
+npm run build
+
+echo ""
+echo "==> Build succeeded. To run the app locally:"
+echo "      npm run dev"
+echo "    Then open http://localhost:3000"
